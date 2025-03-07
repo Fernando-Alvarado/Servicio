@@ -1,0 +1,226 @@
+---
+title: "Estudio_igraph"
+author: "Fernando Alvarado"
+date: "2025-03-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Ruta de los datos en caso de que requiera
+#setwd("C:/Users/ferna/Documents/Seminario Estadistica/EjercicioExtra1")
+
+#Cargamos nuestras librerías 
+library(ggplot2)
+library(dplyr)
+ library(igraph) 
+
+
+
+
+```
+
+## Repaso de R
+
+
+Declaracion de variables
+
+```{r }
+
+x <- 3
+z <- x + 17*y  #Asignacion de variables
+z
+
+#rm(z) #Elimina las variables
+
+```
+
+
+Comparaciones logicas
+
+```{r }
+1 == 2
+
+1 != 3
+
+```
+Manejo de Vectores 
+
+```{r }
+v1 <- c(1, 5, 11, 33)       
+
+v2 <- c("hello","world")    
+
+v3 <- c(TRUE, TRUE, FALSE)
+```
+
+Otras forma de hacer vectores en R
+
+```{r }
+v1 <- 1:7         #  imprime  c(1,2,3,4,5,6,7)  
+
+v2 <- rep(0, 77)  # Hace un vector de ceros 77 veces
+
+v3 <- rep(1:3, times=2) #Repite dos veces la secuencia, de 1 a 3
+
+v4 <- seq(10,20,2) #Hace una secuencia de numero de 10 a 20, de dos en dos
+
+v1
+
+v2
+
+v3
+
+v4
+```
+
+
+Matrices
+
+```{r }
+m <- matrix(data=1, nrow=5, ncol=4)  # Una matriz de 5 * 4 llena de unos
+
+m <- matrix(1,5,4)                       # Misma matriz que la de arriba
+
+dim(m)            #Ver la dimension de nuestra matriz
+
+
+m <- cbind(1:5, 5:1, 5:9)      #Haciendo una matriz, usando la misma forma que para hacer vectores
+
+
+m <- matrix(1:10,10,10)
+
+m[2,] #Selecciona el segungo renglo completo
+m[2,2] #Seleccion el segundo renglo y la segunda columna
+m[,2]  #Selecciona la segunda columna completa
+```
+
+
+## Estudio Igraph
+```{r }
+edges1 = c(1,2, 2,3, 3, 1, 1,4) #Nodos que queremos unir por pares
+
+g1 <- graph( edges=, n=5, directed=F ) #n es el numeros de nodos que tendra nuestra grafica
+
+plot(g1) 
+```
+
+
+```{r }
+g3 <- graph( c("John", "Jim", "Jim","b" , "Jill", "Jill", "John", "a"))  #Tambien podemos tener, nodos con nombre y poner como se relacionan
+
+plot(g3)
+```
+
+
+
+
+```{r }
+g4 <- graph( c("John", "Jim", "Jim", "Jack", "Jim", "Jack", "John", "John", "Fernando", "John", "Fernando"), 
+
+             isolates=c("Jesse", "Janis", "Jennifer", "Justin") )  #Puntos aisaldos que no tendran relacion en un principio
+
+#Hciendo Modificaciones a nuestra grafica
+
+plot(g4, edge.arrow.size=1, vertex.color="green", vertex.size=20, #Modifica, el tamaño de la flecha, el color del circulo, el tamaño del circulo
+
+     vertex.frame.color="red", vertex.label.color="blue", #Modifica el color del contorno del circulo y el color del texto
+
+     vertex.label.cex=0.8, vertex.label.dist=2, edge.curved=0.2) 
+```
+
+
+Otra forma de declarar graficas pequeñas
+
+```{r }
+plot(graph_from_literal(a+-+b, b+-+c)) #Ejmeplo 1
+
+plot(graph_from_literal(a:b:c---c:d:e)) #Ejmeplo 2
+
+
+gl <- graph_from_literal(a-b-c-d-e-f, a-g-h-b, h-e:f:i, j) #Ejmeplo 3
+
+plot(gl)
+```
+
+Propiedades de las graficas
+
+```{r }
+E(g4) # The edges of the object
+V(g4) # The vertices of the object
+V(g4)$gender <- c("male", "male", "male", "male", "female", "female", "male", "male") #Agregnado variables categoricas a la grafica
+g4[]  #Puedes incluso ver la matriz de correlaciones entre los nodos
+```
+
+Fomras de modificar los atributos
+
+```{r }
+
+g4 <- set_graph_attr(g4, "name", "Email Network")
+
+g4 <- set_graph_attr(g4, "something", "A thing")
+
+
+
+graph_attr_names(g4)
+
+
+g4 <- delete_graph_attr(g4, "something")
+
+graph_attr(g4)
+
+```
+
+
+
+```{r }
+
+
+plot(g4, edge.arrow.size=.5, vertex.label.color="black", vertex.label.dist=1.5,
+
+     vertex.color=c( "pink", "skyblue")[1+(V(g4)$gender=="male")] ) 
+
+```
+
+
+
+
+```{r }
+
+```
+
+
+
+
+```{r }
+
+```
+
+
+
+```{r }
+
+```
+
+
+
+
+```{r }
+
+```
+
+
+
+
+```{r }
+
+```
+
+
+
+
+```{r }
+
+```
+
