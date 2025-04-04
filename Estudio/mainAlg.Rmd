@@ -1,0 +1,95 @@
+---
+title: "Estudio_igraph"
+author: "Fernando Alvarado"
+date: "2025-03-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Ruta de los datos en caso de que requiera
+#setwd("C:/Users/ferna/Documents/Seminario Estadistica/EjercicioExtra1")
+
+#Cargamos nuestras librerías 
+library(ggplot2)
+library(dplyr)
+ library(igraph) 
+
+
+
+
+```
+
+
+# Grafica a partir de una tabla de correlacion
+
+Los datos de este grafo son datos de liga europea de futbol, para hacer la grafica primero haremos una tabla de correlacion y luego veremos las correlacion mayores de 0.5 o menemos  a -0.5.
+
+Nuestros datos contiene la tabla de posiciones de la Liga Premier de Inglaterra de la temporada 2019-2020. contando con los siguientes campos 
+ **Team**, **W** *(wins)*, **D** *(draws)* ,**L** *(losses)* , **GF** *(goals for)* , **GA** *(goals against)* , **GD** *(goal difference)*
+
+
+```{r}
+# Cargamos los datos de un .txt
+
+setwd("C:/Users/ferna/Documents/Servicio/Estudio/Data")
+
+data <- read.table("EPL_19_20.txt", header = TRUE, sep = ",")
+```
+
+```{r}
+head(data)
+```
+
+```{r}
+data_fil <-data[, -1] #Quitando los nombres para poder calcular las correlaciones
+
+# Correlacion entre las variables
+cor_mat <- cor(data_fil) #Matriz de correlacion
+cor_mat[abs(cor_mat) <= 0.5 ] <- 0 # Filtrando las correlaciones mayores a 0.5 o menores a -0.5
+
+round(cor_mat , 2)  # Ver tabla
+```
+
+```{r}
+cor_mat[abs(cor_mat) <= 0.5] <- 0
+diag(cor_mat) <- 0
+
+# Usar valor absoluto si querés que los pesos sean positivos
+g <- graph_from_adjacency_matrix(abs(cor_mat), mode = "undirected", weighted = TRUE)
+plot(g, edge.width = E(g)$weight * 5, edge.label = round(E(g)$weight, 2))
+```
+
+
+```{r}
+# Paso 1: Filtrar matriz de correlaciones
+cor_mat_fil <- cor_mat
+cor_mat_fil[abs(cor_mat_fil) <= 0.5] <- 0
+diag(cor_mat_fil) <- 0
+
+# Paso 2: Crear grafo ponderado
+g <- graph_from_adjacency_matrix(cor_mat_fil, mode = "undirected", weighted = TRUE)
+
+# Paso 3: Asignar color según signo del peso
+E(g)$color <- ifelse(E(g)$weight > 0, "blue", "red")
+E(g)$width <- abs(E(g)$weight) * 5  # Ancho proporcional al peso
+
+# ✅ Paso 4: Definir layout espacioso
+# Paso 4: Definir layout con pesos positivos
+layout_opt <- layout_with_kk(g, weights = abs(E(g)$weight))
+layout_opt <- layout_opt * 1.5  # Escalar el layout si querés más espacio
+
+
+# Paso 5: Dibujar el grafo con layout personalizado
+plot(g,
+     layout = layout_opt,
+     edge.width = E(g)$width,
+     edge.label = round(E(g)$weight, 2),
+     edge.color = E(g)$color,
+     vertex.label.cex = 1.2,
+     vertex.size = 30,
+     main = "Correlaciones positivas (azul) y negativas (rojo)")
+
+```
+
