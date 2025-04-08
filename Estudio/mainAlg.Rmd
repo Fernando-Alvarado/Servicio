@@ -24,10 +24,16 @@ library(dplyr)
 
 # Grafica a partir de una tabla de correlacion
 
+**Objetivo**
+
+El objetivo es poder pasar de datos, a una tabla de correlaciones y luego a una grafica de correlaciones donde solo grafiquemos las que nos interesan y podamos ver su relacion entre si.
+
 Los datos de este grafo son datos de liga europea de futbol, para hacer la grafica primero haremos una tabla de correlacion y luego veremos las correlacion mayores de 0.5 o menemos  a -0.5.
 
 Nuestros datos contiene la tabla de posiciones de la Liga Premier de Inglaterra de la temporada 2019-2020. contando con los siguientes campos 
  **Team**, **W** *(wins)*, **D** *(draws)* ,**L** *(losses)* , **GF** *(goals for)* , **GA** *(goals against)* , **GD** *(goal difference)*
+
+
 
 
 ```{r}
@@ -38,11 +44,11 @@ setwd("C:/Users/ferna/Documents/Servicio/Estudio/Data")
 data <- read.table("EPL_19_20.txt", header = TRUE, sep = ",")
 ```
 
-```{r}
+```{r, echo=FALSE}
 head(data)
 ```
 
-```{r}
+```{r, echo=FALSE}
 data_fil <-data[, -1] #Quitando los nombres para poder calcular las correlaciones
 
 # Correlacion entre las variables
@@ -52,7 +58,7 @@ cor_mat[abs(cor_mat) <= 0.5 ] <- 0 # Filtrando las correlaciones mayores a 0.5 o
 round(cor_mat , 2)  # Ver tabla
 ```
 
-```{r}
+```{r, echo=FALSE,  fig.width=10, fig.height=6}
 cor_mat[abs(cor_mat) <= 0.5] <- 0
 diag(cor_mat) <- 0
 
@@ -62,7 +68,7 @@ plot(g, edge.width = E(g)$weight * 5, edge.label = round(E(g)$weight, 2))
 ```
 
 
-```{r}
+```{r, echo=FALSE,  fig.width=10, fig.height=6}
 # Paso 1: Filtrar matriz de correlaciones
 cor_mat_fil <- cor_mat
 cor_mat_fil[abs(cor_mat_fil) <= 0.5] <- 0
@@ -73,7 +79,7 @@ g <- graph_from_adjacency_matrix(cor_mat_fil, mode = "undirected", weighted = TR
 
 # Paso 3: Asignar color según signo del peso
 E(g)$color <- ifelse(E(g)$weight > 0, "blue", "red")
-E(g)$width <- abs(E(g)$weight) * 5  # Ancho proporcional al peso
+E(g)$width <- abs(E(g)$weight) * 4  # Ancho proporcional al peso
 
 # ✅ Paso 4: Definir layout espacioso
 # Paso 4: Definir layout con pesos positivos
@@ -92,4 +98,160 @@ plot(g,
      main = "Correlaciones positivas (azul) y negativas (rojo)")
 
 ```
+# Leyendo datos de una isla en Nueva Zelanda
+
+**Información general:**  
+Este conjunto de estudios se llevó a cabo en ríos de Nueva Zelanda, Maine y Carolina del Norte (EE.UU.). Los datos corresponden a redes tróficas utilizadas para comparar el efecto del uso del suelo sobre la estructura de las redes alimentarias a nivel regional y continental (Townsend et al. 1998, Thompson y Townsend 2003). También han sido objeto de reanálisis en cuanto a esfuerzo de muestreo, resolución taxonómica y variabilidad estacional.
+
+**Tipo de datos:**  
+Los autores registraron insectos acuáticos, algas y peces, junto con sus interacciones tróficas. Los datos se presentan como una **matriz binaria de interacciones**, donde un "1" indica interacción trófica entre un par de especies y un "0" indica ausencia de interacción.
+
+
+```{r, echo=FALSE}
+matriz <- read.table(
+  "https://iwdb.nceas.ucsb.edu/data/predator_prey/text_matrices/AkatoreBtxt.txt",
+  header = FALSE
+)
+
+# Ver dimensiones y una parte de la matriz
+dim(matriz)
+head(matriz[, 1:10])
+
+```
+
+```{r, echo=FALSE}
+mat_ad <- as.matrix(matriz)
+
+dim(mat_ad) #Observadno que nuestra matriz de adyacencia sea cuadrada para poder hacer las graficas 
+```
+
+Haciendo una primera grafica sencilla de nuestra amtriz de ayacencia 
+
+
+```{r, fig.width=20, fig.height=15, echo=FALSE}
+g <- graph_from_adjacency_matrix(mat_ad, mode = "undirected", diag = FALSE)
+#Consideraciones codigo 
+# - mode: "undirected" para grafo no dirigido
+# - mode: "directed" para grafo dirigido
+# - weighted: TRUE para grafo ponderado (si no se especifica, se asume FALSE)
+# - diag: FALSE para no incluir la diagonal (no hay bucles)
+
+
+
+# Graficar el grafo
+# Graficar el grafo
+plot(
+  g,                            # Objeto grafo creado con igraph
+  layout = layout_with_fr,     # Distribución tipo Fruchterman-Reingold (buena para redes densas)
+  vertex.size = 10,            # Tamaño de los nodos (círculos)
+  vertex.label.cex = 0.8,      # Tamaño del texto de las etiquetas de nodos
+  vertex.label.color = "white",  #  Color del texto (etiquetas de los nodos)
+  vertex.label.color = "#0e6655",# Color del texto de las etiquetas
+  vertex.color = "#2874a6",  # Color de los nodos
+  vertex.frame.color = "#d35400", # Color del borde de los nodos (contorno)
+  edge.arrow.size = 0.4,       # Tamaño de las flechas (solo aplica si el grafo es dirigido)
+  margin = 0.1                 # Espacio alrededor del grafo (reduce bordes en blanco)
+)
+
+  
+  
+
+
+```
+
+
+
+```{r, echo=FALSE}
+
+algoritmos <- function(layoutElec) {
+  # Graficar el grafo
+  plot(
+    g,                            # Objeto grafo creado con igraph
+    layout = layoutElec(g),         # Distribución tipo Fruchterman-Reingold (buena para redes densas)
+    vertex.size = 10,            # Tamaño de los nodos (círculos)
+    vertex.label.cex = 0.8,      # Tamaño del texto de las etiquetas de nodos
+    vertex.label.color = "white",  #  Color del texto (etiquetas de los nodos)
+    vertex.label.color = "#0e6655",# Color del texto de las etiquetas
+    vertex.color = "#2874a6",  # Color de los nodos
+    vertex.frame.color = "#d35400", # Color del borde de los nodos (contorno)
+    edge.arrow.size = 0.4,       # Tamaño de las flechas (solo aplica si el grafo es dirigido)
+    margin = 0.1                 # Espacio alrededor del grafo (reduce bordes en blanco)
+  )
+}
+
+# layout_with_fr     → Algoritmo de Fruchterman-Reingold
+#                     Bueno para redes pequeñas y medianas.
+#                     Distribuye los nodos de forma balanceada, simulando fuerzas físicas.
+
+# layout_with_kk     → Algoritmo de Kamada-Kawai
+#                     Ideal para preservar distancias lógicas entre nodos (si los hay).
+#                     Útil si hay estructura tipo cadena o círculos interconectados.
+
+# layout_in_circle   → Coloca todos los nodos en un círculo.
+#                     Muy útil para comparar grados o ver simetrías en la red.
+
+# layout_as_tree     → Disposición jerárquica, como un árbol.
+#                     Ideal si la red tiene una raíz clara o estructura tipo árbol.
+
+# layout_with_drl    → Algoritmo DRL (Distributed Recursive Layout)
+#                     Diseñado para grafos grandes (muchos nodos).
+#                     Se basa en fuerzas, como Fruchterman-Reingold pero más rápido.
+
+# layout_with_graphopt → Algoritmo físico optimizado.
+#                        Ofrece buena separación visual entre comunidades o grupos de nodos.
+
+# layout_with_lgl     → Large Graph Layout
+#                       Especializado en redes **muy grandes** (más de 1000 nodos).
+#                       Menor calidad visual, pero útil para escalabilidad.
+
+```
+
+# Algoritmos graficas 
+
+### Algoritmo de Fruchterman-Reingold
+
+```{r,  fig.width=9, fig.height=5, echo=FALSE}
+
+
+algoritmos(layout_with_fr)
+```
+
+### Disposición jerárquica, como un árbol.
+
+```{r,  fig.width=9, fig.height=5, echo=FALSE}
+
+
+algoritmos(layout_as_tree)
+```
+
+### Algoritmo DRL (Distributed Recursive Layout)
+
+```{r,  fig.width=9, fig.height=5, echo=FALSE}
+
+
+algoritmos(layout_with_kk)
+```
+
+### Algoritmo físico optimizado.
+
+```{r,  fig.width=9, fig.height=5, echo=FALSE}
+
+
+algoritmos(layout_with_mds)
+```
+
+### De forma Aleatoria
+
+```{r, fig.width=9, fig.height=5, echo=FALSE}
+
+
+algoritmos(layout_randomly)
+```
+
+
+
+
+
+
+
 
